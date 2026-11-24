@@ -1,0 +1,41 @@
+{
+  "winner": "hist_gb",
+  "cv": {
+    "logreg": {
+      "roc_auc": 0.6335080155406999,
+      "pr_auc": 0.30620727461804087,
+      "log_loss": 0.4718577410653924,
+      "pr_auc_std": 0.005093923492096759
+    },
+    "hist_gb": {
+      "roc_auc": 0.6667123182824447,
+      "pr_auc": 0.35530491085786775,
+      "log_loss": 0.45925914305859583,
+      "pr_auc_std": 0.006185179974533891
+    },
+    "xgboost": {
+      "roc_auc": 0.6662926720156458,
+      "pr_auc": 0.35402993187550125,
+      "log_loss": 0.4595709502696991,
+      "pr_auc_std": 0.006306274022298097
+    }
+  },
+  "test": {
+    "test_roc_auc": 0.6646575621379069,
+    "test_pr_auc": 0.3558047610246272,
+    "test_brier": 0.1450179670203025,
+    "test_brier_base_rate": 0.15603463004914686,
+    "test_f1_at_threshold": 0.3820662768031189,
+    "threshold": 0.19
+  },
+  "importance": {
+    "model_year": 0.12829,
+    "postal_code": 0.04008,
+    "legislative_district": 0.02167,
+    "electric_utility": 0.02018,
+    "city": 0.0156,
+    "latitude": 0.01493,
+    "longitude": 0.01394,
+    "county": 0.00933
+  }
+}

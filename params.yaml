@@ -21,3 +21,25 @@ bank:
       max_depth: 4
       subsample: 0.8
       colsample_bytree: 0.8
+
+ev:
+  # Washington State DOL registrations (catalog.data.gov "Electric Vehicle Population Data")
+  data_url: https://data.wa.gov/api/views/f6w7-q2d2/rows.csv?accessType=DOWNLOAD
+  test_size: 0.2
+  cv_folds: 5
+  # One-hot levels seen fewer times than this are pooled (linear baseline only)
+  min_category_count: 20
+  models:
+    logreg:
+      C: 1.0
+    hist_gb:
+      max_iter: 300
+      learning_rate: 0.05
+      max_leaf_nodes: 63
+      l2_regularization: 1.0
+    xgboost:
+      n_estimators: 400
+      learning_rate: 0.05
+      max_depth: 6
+      subsample: 0.8
+      colsample_bytree: 0.8

@@ -15,3 +15,20 @@ stages:
       - reports/bank/roc_pr.png: {cache: false}
       - reports/bank/calibration_profit.png: {cache: false}
       - reports/bank/importance.png: {cache: false}
+
+  ev_data:
+    cmd: python -m dsp.ev.data
+    deps: [src/dsp/ev/data.py]
+    params: [seed, ev.data_url, ev.test_size]
+    outs: [data/raw/ev, data/processed/ev]
+
+  ev_train:
+    cmd: python -m dsp.ev.train
+    deps: [src/dsp/ev/train.py, src/dsp/ev/pipeline.py, data/processed/ev]
+    params: [seed, ev]
+    outs: [models/ev]
+    metrics: [reports/ev/metrics.json: {cache: false}]
+    plots:
+      - reports/ev/roc_pr_calibration.png: {cache: false}
+      - reports/ev/county_share.png: {cache: false}
+      - reports/ev/importance.png: {cache: false}

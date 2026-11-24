@@ -1,10 +1,23 @@
 # MLflow tracking server plus the model APIs.
-#   docker compose up -d                      MLflow + bank API (needs models/bank, e.g. from dvc repro)
-#   docker compose run --rm bank-train        retrain in a container, logging to the MLflow server
-#   docker compose up -d --build bank-api     rebuild the API image with the new model
+#   docker compose up -d                      MLflow + all APIs (needs models/<project>)
+#   docker compose run --rm bank-train        retrain bank in a container, logging to MLflow
+#   docker compose run --rm ev-train          same for the EV project
+#   docker compose up -d --build bank-api     rebuild an API image with the new model
 # Then open:
 #   http://localhost:5000       MLflow experiments and model registry
 #   http://localhost:8001/docs  bank-marketing API
+#   http://localhost:8002/docs  EV type API
+x-train: &train
+  profiles: [train]
+  environment:
+    MLFLOW_TRACKING_URI: http://mlflow:5000
+  volumes:
+    - ./data:/app/data
+    - ./models:/app/models
+    - ./reports:/app/reports
+  depends_on:
+    mlflow: { condition: service_healthy }
+
 services:
   mlflow:
     image: ghcr.io/mlflow/mlflow:v3.1.1
@@ -23,18 +36,19 @@ services:
     restart: unless-stopped
 
   bank-train:
-    build: { context: ., dockerfile: docker/bank.Dockerfile, target: train }
-    profiles: [train]
-    environment:
-      MLFLOW_TRACKING_URI: http://mlflow:5000
-    volumes:
-      - ./data:/app/data
-      - ./models:/app/models
-      - ./reports:/app/reports
-    depends_on:
-      mlflow: { condition: service_healthy }
+    <<: *train
+    build: { context: ., dockerfile: docker/Dockerfile, target: train, args: { PROJECT: bank } }
 
   bank-api:
-    build: { context: ., dockerfile: docker/bank.Dockerfile, target: serve }
+    build: { context: ., dockerfile: docker/Dockerfile, target: serve, args: { PROJECT: bank } }
     ports: ["8001:8000"]
+    restart: unless-stopped
+
+  ev-train:
+    <<: *train
+    build: { context: ., dockerfile: docker/Dockerfile, target: train, args: { PROJECT: ev } }
+
+  ev-api:
+    build: { context: ., dockerfile: docker/Dockerfile, target: serve, args: { PROJECT: ev } }
+    ports: ["8002:8000"]
     restart: unless-stopped

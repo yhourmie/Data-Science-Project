@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12", cache: pip }
-      - run: pip install ".[bank,serve,dev]"
+      - run: pip install ".[bank,ev,serve,dev]"
       - run: ruff check .
       - run: ruff format --check .
       - run: pytest -q
@@ -19,16 +19,20 @@ jobs:
   docker:
     needs: test
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [bank, ev]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12", cache: pip }
-      # Train inside CI so the image is built from a reproducible pipeline, not a laptop artefact.
-      - run: pip install ".[bank,dev]" && dvc repro bank_train
       - run: docker compose config -q
-      - run: docker build -f docker/bank.Dockerfile -t dsp-bank .
+      # Train inside CI so the image is built from a reproducible pipeline, not a laptop artefact.
+      - run: pip install ".[${{ matrix.project }},dev]" && dvc repro ${{ matrix.project }}_train
+      - run: docker build -f docker/Dockerfile --build-arg PROJECT=${{ matrix.project }} -t dsp-${{ matrix.project }} .
       - name: Smoke-test the container
         run: |
-          docker run -d -p 8000:8000 --name bank dsp-bank
+          docker run -d -p 8000:8000 --name api dsp-${{ matrix.project }}
           for i in $(seq 1 30); do curl -sf localhost:8000/health && break; sleep 1; done
           curl -sf localhost:8000/health
