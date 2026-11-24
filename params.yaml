@@ -1,0 +1,23 @@
+seed: 42
+
+bank:
+  data_url: https://archive.ics.uci.edu/static/public/222/bank+marketing.zip
+  test_size: 0.2
+  cv_folds: 5
+  # `duration` is only known after the call ends, so it leaks the outcome. It is dropped.
+  drop_columns: [duration]
+  # Illustrative campaign economics used to pick the decision threshold
+  cost_per_call: 5.0
+  revenue_per_subscription: 50.0
+  models:
+    logreg:
+      C: 1.0
+    random_forest:
+      n_estimators: 400
+      min_samples_leaf: 5
+    xgboost:
+      n_estimators: 500
+      learning_rate: 0.05
+      max_depth: 4
+      subsample: 0.8
+      colsample_bytree: 0.8

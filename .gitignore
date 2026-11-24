@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+/data
+/models
+mlflow.db
+mlruns/
+mlartifacts/
+mlflow-docker/
+.dvc/tmp
+.dvc/cache

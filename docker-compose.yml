@@ -1,0 +1,40 @@
+# MLflow tracking server plus the model APIs.
+#   docker compose up -d                      MLflow + bank API (needs models/bank, e.g. from dvc repro)
+#   docker compose run --rm bank-train        retrain in a container, logging to the MLflow server
+#   docker compose up -d --build bank-api     rebuild the API image with the new model
+# Then open:
+#   http://localhost:5000       MLflow experiments and model registry
+#   http://localhost:8001/docs  bank-marketing API
+services:
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v3.1.1
+    command: >
+      mlflow server --host 0.0.0.0 --port 5000
+      --backend-store-uri sqlite:////mlflow/mlflow.db
+      --artifacts-destination /mlflow/artifacts
+    ports: ["5000:5000"]
+    volumes: ["./mlflow-docker:/mlflow"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 10s
+      timeout: 3s
+      start_period: 15s
+      retries: 5
+    restart: unless-stopped
+
+  bank-train:
+    build: { context: ., dockerfile: docker/bank.Dockerfile, target: train }
+    profiles: [train]
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./reports:/app/reports
+    depends_on:
+      mlflow: { condition: service_healthy }
+
+  bank-api:
+    build: { context: ., dockerfile: docker/bank.Dockerfile, target: serve }
+    ports: ["8001:8000"]
+    restart: unless-stopped

@@ -1,0 +1,17 @@
+stages:
+  bank_data:
+    cmd: python -m dsp.bank.data
+    deps: [src/dsp/bank/data.py]
+    params: [seed, bank.data_url, bank.test_size, bank.drop_columns]
+    outs: [data/raw/bank, data/processed/bank]
+
+  bank_train:
+    cmd: python -m dsp.bank.train
+    deps: [src/dsp/bank/train.py, src/dsp/bank/pipeline.py, data/processed/bank]
+    params: [seed, bank]
+    outs: [models/bank]
+    metrics: [reports/bank/metrics.json: {cache: false}]
+    plots:
+      - reports/bank/roc_pr.png: {cache: false}
+      - reports/bank/calibration_profit.png: {cache: false}
+      - reports/bank/importance.png: {cache: false}

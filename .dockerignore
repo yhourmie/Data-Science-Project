@@ -1,0 +1,14 @@
+# Keep the build context small: the image only needs pyproject, src, params and models/bank.
+.git
+.dvc
+.github
+data
+mlruns
+mlflow.db
+mlflow-docker
+reports
+tests
+**/__pycache__
+**/*.pyc
+.venv
+*.egg-info

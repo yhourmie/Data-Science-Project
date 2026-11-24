@@ -1,0 +1,97 @@
+schema: '2.0'
+stages:
+  bank_data:
+    cmd: python -m dsp.bank.data
+    deps:
+    - path: src/dsp/bank/data.py
+      hash: md5
+      md5: 6cb632374b3dc37fd1ea8d1bb677744b
+      size: 2605
+      isexec: true
+    params:
+      params.yaml:
+        bank.data_url: 
+          https://archive.ics.uci.edu/static/public/222/bank+marketing.zip
+        bank.drop_columns:
+        - duration
+        bank.test_size: 0.2
+        seed: 42
+    outs:
+    - path: data/processed/bank
+      hash: md5
+      md5: 0f98d778aa814b6c705d061139735548.dir
+      size: 4506968
+      nfiles: 2
+    - path: data/raw/bank
+      hash: md5
+      md5: f3d4937818aab7f701bbcc3818c88ffd.dir
+      size: 4912041
+      nfiles: 1
+  bank_train:
+    cmd: python -m dsp.bank.train
+    deps:
+    - path: data/processed/bank
+      hash: md5
+      md5: 0f98d778aa814b6c705d061139735548.dir
+      size: 4506968
+      nfiles: 2
+    - path: src/dsp/bank/pipeline.py
+      hash: md5
+      md5: 79d5b27282a590035c4c6e01b4b4a70a
+      size: 2478
+      isexec: true
+    - path: src/dsp/bank/train.py
+      hash: md5
+      md5: d45d2e21975b218ec125e4488f371017
+      size: 7675
+      isexec: true
+    params:
+      params.yaml:
+        bank:
+          data_url: 
+            https://archive.ics.uci.edu/static/public/222/bank+marketing.zip
+          test_size: 0.2
+          cv_folds: 5
+          drop_columns:
+          - duration
+          cost_per_call: 5.0
+          revenue_per_subscription: 50.0
+          models:
+            logreg:
+              C: 1.0
+            random_forest:
+              n_estimators: 400
+              min_samples_leaf: 5
+            xgboost:
+              n_estimators: 500
+              learning_rate: 0.05
+              max_depth: 4
+              subsample: 0.8
+              colsample_bytree: 0.8
+        seed: 42
+    outs:
+    - path: models/bank
+      hash: md5
+      md5: 99437fa8052dac1cc91795a09989d244.dir
+      size: 381781451
+      nfiles: 1
+    - path: reports/bank/calibration_profit.png
+      hash: md5
+      md5: c45a27d172c17e5f0beffb5df0ca8858
+      size: 61559
+      isexec: true
+    - path: reports/bank/importance.png
+      hash: md5
+      md5: 2e2520a408a70c147af727e9349d7f51
+      size: 36184
+      isexec: true
+    - path: reports/bank/metrics.json
+      hash: md5
+      md5: 4d245d8cf945512b5a17a49cd0bb4cc9
+      size: 1449
+      isexec: true
+    - path: reports/bank/roc_pr.png
+      hash: md5
+      md5: e3bbff0c5ff74deb0032fa50b3850fc1
+      size: 59703
+      isexec: true
